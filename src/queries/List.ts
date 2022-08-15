@@ -40,7 +40,7 @@ export default class ListQueries {
     });
 
     const queryData = {
-      name: 'fetch-list',
+      name: `fetch-list-details-${id}`,
       text: query,
     };
 
