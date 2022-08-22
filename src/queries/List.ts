@@ -1,5 +1,6 @@
 import postgresPool from '~/configs/postgresPool';
 import { getPSQLSelectQuery } from '~/utils/psqlQueryUtils';
+import { LimitPageType } from '~/types';
 
 export default class ListQueries {
   pull: typeof postgresPool;
@@ -8,19 +9,22 @@ export default class ListQueries {
     this.pull = postgresPool;
   }
 
-  getList = async () => {
+  getList = async (args: LimitPageType) => {
+    const { limit, page } = args;
+
     const query = getPSQLSelectQuery({
-      limit: 20,
+      limit: parseInt(limit, 10),
       from: 'list',
       join: 'LEFT JOIN list_images ON list.id = list_images.list_id',
       groupBy: 'list.id',
       fields:
         'list.*, array_agg(row_to_json(list_images.*) ORDER BY list_images.id ASC) as images',
       orderBy: 'list.id ASC',
+      offset: parseInt(limit, 10) * (parseInt(page, 10) - 1),
     });
 
     const queryData = {
-      name: 'fetch-list',
+      name: `fetch-list-${page}`,
       text: query,
     };
 
@@ -41,6 +45,20 @@ export default class ListQueries {
 
     const queryData = {
       name: `fetch-list-details-${id}`,
+      text: query,
+    };
+
+    return this.pull.query(queryData);
+  };
+
+  getListCount = async () => {
+    const query = getPSQLSelectQuery({
+      from: 'list',
+      fields: 'count(*)',
+    });
+
+    const queryData = {
+      name: 'fetch-list-count',
       text: query,
     };
 

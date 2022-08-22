@@ -8,6 +8,7 @@ type GetPSQLQueryArgsType = {
   groupBy?: string;
   orderBy?: string;
   where?: string;
+  offset?: number;
 };
 
 export const getPSQLSelectQuery = (data: GetPSQLQueryArgsType) => {
@@ -19,6 +20,7 @@ export const getPSQLSelectQuery = (data: GetPSQLQueryArgsType) => {
     groupBy = null,
     orderBy = null,
     where = null,
+    offset = null,
   } = data;
 
   return `SELECT ${fields} 
@@ -27,6 +29,7 @@ export const getPSQLSelectQuery = (data: GetPSQLQueryArgsType) => {
     ${checkStringValue(where, `WHERE ${where}`)} 
     ${checkStringValue(groupBy, `GROUP BY ${groupBy}`)}
     ${checkStringValue(orderBy, `ORDER BY ${orderBy}`)}
+    ${checkStringValue(offset?.toString?.(), `OFFSET ${offset}`)} 
     ${checkStringValue(limit?.toString?.(), `LIMIT ${limit}`)} 
   `;
 };
