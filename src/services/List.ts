@@ -1,5 +1,6 @@
 import { ListQueries } from '~/queries';
 import { LimitPageType } from '~/types';
+import { ListItemType } from '~/models.types';
 
 export default class ListService {
   listQueries: ListQueries;
@@ -28,15 +29,44 @@ export default class ListService {
   };
 
   getListDetails = async (id: string) => {
-    const {
-      rows: [row],
-    } = await this.listQueries.getListDetails(id);
+    const { rows } = await this.listQueries.getListDetails(id);
 
-    const data = {
-      ...row,
-      images: !row.images.every(Boolean) ? [] : row.images,
+    const resultAcc = {
+      itemData: {} as ListItemType,
+      hasPrevious: false,
+      hasNext: false,
     };
 
-    return { data };
+    const handleReduce = (acc: typeof resultAcc, item: ListItemType) => {
+      const { id: queriedId, images } = item;
+
+      if (queriedId === parseInt(id, 10)) {
+        return {
+          ...acc,
+          itemData: {
+            ...item,
+            images: !images.every(Boolean) ? [] : images,
+          },
+        };
+      }
+
+      if (queriedId < parseInt(id, 10)) {
+        return {
+          ...acc,
+          hasPrevious: true,
+        };
+      }
+
+      if (queriedId > parseInt(id, 10)) {
+        return {
+          ...acc,
+          hasNext: true,
+        };
+      }
+
+      return acc;
+    };
+
+    return rows.reduce(handleReduce, resultAcc);
   };
 }

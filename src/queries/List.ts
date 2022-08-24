@@ -1,6 +1,7 @@
 import postgresPool from '~/configs/postgresPool';
 import { getPSQLSelectQuery } from '~/utils/psqlQueryUtils';
 import { LimitPageType } from '~/types';
+import { ListItemType } from '~/models.types';
 
 export default class ListQueries {
   pull: typeof postgresPool;
@@ -28,10 +29,12 @@ export default class ListQueries {
       text: query,
     };
 
-    return this.pull.query(queryData);
+    return this.pull.query<ListItemType>(queryData);
   };
 
   getListDetails = async (id: string) => {
+    const numberedId = parseInt(id, 10);
+
     const query = getPSQLSelectQuery({
       limit: 20,
       from: 'list',
@@ -40,7 +43,9 @@ export default class ListQueries {
       fields:
         'list.*, array_agg(row_to_json(list_images.*) ORDER BY list_images.id ASC) as images',
       orderBy: 'list.id ASC',
-      where: `list.id=${id}`,
+      where: `list.id=${numberedId} OR list.id=${numberedId - 1} OR  list.id=${
+        numberedId + 1
+      }`,
     });
 
     const queryData = {
@@ -48,7 +53,7 @@ export default class ListQueries {
       text: query,
     };
 
-    return this.pull.query(queryData);
+    return this.pull.query<ListItemType>(queryData);
   };
 
   getListCount = async () => {

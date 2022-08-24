@@ -11,7 +11,7 @@ export default class ListController {
   getList = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const {
-        query: { limit = 20, page = 1 },
+        query: { limit = '20', page = '1' },
       } = req;
 
       const listData = await this.listService.getList({
