@@ -25,5 +25,6 @@ export default class ListRoutes {
 
   setRoutes = () => {
     this.router.get('/', this.listController.getList);
+    this.router.get('/:id', this.listController.getListDetails);
   };
 }

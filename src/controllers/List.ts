@@ -8,9 +8,30 @@ export default class ListController {
     this.listService = new ListService();
   }
 
-  getList = async (_: Request, res: Response, next: NextFunction) => {
+  getList = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const listData = await this.listService.getList();
+      const {
+        query: { limit = '20', page = '1' },
+      } = req;
+
+      const listData = await this.listService.getList({
+        limit: limit as string,
+        page: page as string,
+      });
+
+      res.json(listData);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  getListDetails = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {
+        params: { id },
+      } = req;
+
+      const listData = await this.listService.getListDetails(id);
 
       res.json(listData);
     } catch (e) {
